@@ -6,12 +6,12 @@ public class Database {
     private Connection connection;
     private static String url = "jdbc:postgresql://localhost:5432/chess";
     private static String username = "postgres";
-    private static String password = "020802";
+    private static String password = "namchamdien1";
     // Establishes the connection to the database
     public void connect(String url, String username, String password) {
         try {
             connection = DriverManager.getConnection(url, username, password);
-            System.out.println("Connected to the database!");
+//            System.out.println("Connected to the database!");
         } catch (SQLException e) {
             System.out.println("Connection failed. Error: " + e.getMessage());
         }
@@ -72,11 +72,11 @@ public class Database {
             if (resultSet != null && resultSet.next()) {
                 String passWord = resultSet.getString("pass_word");
 
-                if (!pass.equals(passWord)) {
-                    System.out.println("Invalid account");
-                } else {
-                    System.out.println("Login succesful");
-                }
+//                if (!pass.equals(passWord)) {
+//                    System.out.println("Invalid account");
+//                } else {
+//                    System.out.println("Login succesful");
+//                }
 
                 return pass.equals(passWord);
             }
@@ -119,6 +119,6 @@ public class Database {
         Database connector = new Database();
 
         connector.login("1", "1");
-        connector.signup("10", "10", "10");
+        connector.signup("21", "21", "21");
     }
 }
