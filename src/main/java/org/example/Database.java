@@ -1,12 +1,12 @@
-package org.example;
+package com.example.javafxproject;
 
 import java.sql.*;
 
 public class Database {
-    private String url = "jdbc:postgresql://localhost:5432/chess";
-    private String username = "postgres";
-    private String password = "namchamdien1";
     private Connection connection;
+    private static String url = "jdbc:postgresql://localhost:5432/chess";
+    private static String username = "postgres";
+    private static String password = "020802";
     // Establishes the connection to the database
     public void connect(String url, String username, String password) {
         try {
@@ -15,6 +15,10 @@ public class Database {
         } catch (SQLException e) {
             System.out.println("Connection failed. Error: " + e.getMessage());
         }
+    }
+
+    public Database() {
+        connect(url, username, password);
     }
 
     // Executes a query and returns the ResultSet
@@ -46,7 +50,7 @@ public class Database {
         return rowsAffected;
     }
 
-//     Closes the connection
+    // Closes the connection
     public void closeConnection() {
         try {
             if (connection != null && !connection.isClosed()) {
@@ -58,39 +62,63 @@ public class Database {
         }
     }
 
-    public boolean runMain(String usr, String pw) {
-        // Database credentials
+    public boolean login(String usr, String pass) {
+        String queryString = "SELECT pass_word FROM users WHERE user_name = '" + usr + "'";
+        ResultSet resultSet = executeQuery(queryString);
 
+        System.out.println("messageType: Login, User name: " + usr + ", Password: " + pass);
 
-        Database connector = new Database();
-        connector.connect(url, username, password);
-
-        // Example query execution - INSERT statements
-        String insertQueryUsers = "SELECT pass_word FROM users WHERE user_name = '" + usr + "'" ;
-        // Execute each insert query separately using executeUpdate()
-
-        // Execute the query
-
-        ResultSet resultSet = connector.executeQuery(insertQueryUsers);
         try {
-            // Loop through the ResultSet to access each row
-            while (resultSet != null && resultSet.next()) {
-                String passWord  = resultSet.getString("pass_word");
-                // Extract other columns as needed
-                System.out.println("messageType: Login, User name: "+usr+", Password: "+ pw);
-                if(!pw.equals(passWord)){
-                    System.out.println("Invalid account");
-                }
-                else System.out.println("Login succesful");
-                return pw.equals(passWord);
-                // Print other information or perform operations
-            }
-        } catch (SQLException e) {
-            System.out.println("Error processing ResultSet: " + e.getMessage());
+            if (resultSet != null && resultSet.next()) {
+                String passWord = resultSet.getString("pass_word");
 
+                if (!pass.equals(passWord)) {
+                    System.out.println("Invalid account");
+                } else {
+                    System.out.println("Login succesful");
+                }
+
+                return pass.equals(passWord);
+            }
+        } catch (SQLException var7) {
+            System.out.println("Error processing ResultSet: " + var7.getMessage());
         }
+
         return false;
     }
 
+    public boolean signup(String usr, String pass, String char_name) {
+        String checkExistingUserQuery = "SELECT user_name FROM users WHERE user_name = '" + usr + "'";
+        ResultSet existingUserResult = executeQuery(checkExistingUserQuery);
 
+        System.out.println("messageType: Signup, User name: " + usr + ", Password: " + pass + ", Character name: " + char_name);
+
+        try {
+            if (existingUserResult != null && existingUserResult.next()) {
+                System.out.println("Username already exists. Please choose a different username.");
+                return false; // Username already exists
+            } else {
+                String insertUserQuery = "INSERT INTO users (user_name, pass_word, character_name) VALUES ('" + usr + "', '" + pass + "', '" + char_name + "')";
+                int rowsAffected = executeUpdate(insertUserQuery);
+
+                if (rowsAffected > 0) {
+                    System.out.println("Signup successful for user: " + usr + " with character_name: " + char_name);
+                    return true; // Signup successful
+                } else {
+                    System.out.println("Signup failed. Please try again.");
+                    return false; // Signup failed
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error processing signup: " + e.getMessage());
+            return false; // Error during signup
+        }
+    }
+
+    public static void main(String[] args) {
+        Database connector = new Database();
+
+        connector.login("1", "1");
+        connector.signup("10", "10", "10");
+    }
 }
