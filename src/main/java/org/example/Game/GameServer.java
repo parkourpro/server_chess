@@ -76,17 +76,12 @@ public class GameServer {
 
     private boolean login(String userName, String password) {
         Database db = new Database();
-        return false;
+        return db.login(userName, password);
     }
 
     private boolean signUp(String userName, String passWord, String characterName) {
-        // Implement sign-up logic
-        // For demonstration, add user to users map
-        if (!users.containsKey(userName)) {
-            users.put(userName, passWord);
-            return true;
-        }
-        return true;
+        Database db = new Database();
+        return db.signup(userName, passWord, characterName);
     }
 
 
