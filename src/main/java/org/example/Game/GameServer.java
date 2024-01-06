@@ -76,7 +76,7 @@ public class GameServer {
 
     private boolean login(String userName, String password) {
         Database db = new Database();
-        return db.runMain(userName, password);
+        return false;
     }
 
     private boolean signUp(String userName, String passWord, String characterName) {
