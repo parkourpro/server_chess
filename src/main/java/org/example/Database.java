@@ -1,4 +1,4 @@
-package com.example.javafxproject;
+package org.example;
 
 import java.sql.*;
 
