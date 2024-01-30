@@ -1,18 +1,17 @@
-package org.example.Game;
+package org.example;
 
 import org.example.Database;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GameServer {
-    private Map<String, String> users; // Store user_name and pass_word (for demonstration)
-    private List<String> onlinePlayers; // Store online players (for demonstration)
+public class ProcessClientMessage {
 
-    public GameServer() {
-        users = new HashMap<>();
-        onlinePlayers = new ArrayList<>();
+    //create database and connect to it
+    private final Database db = new Database();
+    public ProcessClientMessage() {
         // Initialize users or connect to a database here
     }
 
@@ -38,6 +37,7 @@ public class GameServer {
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         ) {
             String request = in.readLine();
+            System.out.println("client message: "+request);
             String[] parts = request.split(",");
 
             String messageType = parts[0].trim();
@@ -57,10 +57,25 @@ public class GameServer {
                     boolean signupSuccess = signUp(userNameSU, passWordSU, characterNameSU);
                     out.println(signupSuccess ? "success" : "fail");
                     break;
+                case "logout":
+                    String userNameLO = parts[1].trim();
+                    boolean logoutSuccess = logOut(userNameLO);
+                    out.println(logoutSuccess ? "success" : "fail");
+                    break;
+                case "profile":
+                    String userNamePR = parts[1].trim();
+                    String user = getProfile(userNamePR);
+                    out.println(user);
+                    break;
+                case "profilec":
+                    String characternamePRC = parts[1].trim();
+                    String userc = getProfilec(characternamePRC);
+                    out.println(userc);
+                    break;
                 case "getOnlinePlayers":
-                    // Retrieve online players and send response
-                    // For demonstration, sending a simple JSON string
-                    out.println("{\"users\": " + onlinePlayers + "}");
+                    List <String> listOnlinePlayers = new ArrayList<>();
+                    listOnlinePlayers = getOnlinePlayers();
+                    out.println(listOnlinePlayers);
                     break;
                 // Handle other request types similarly
                 default:
@@ -75,14 +90,23 @@ public class GameServer {
     }
 
     private boolean login(String userName, String password) {
-        Database db = new Database();
         return db.login(userName, password);
     }
 
     private boolean signUp(String userName, String passWord, String characterName) {
-        Database db = new Database();
         return db.signup(userName, passWord, characterName);
     }
-
+    private boolean logOut(String userName) {
+        return db.logout(userName);
+    }
+    private List<String> getOnlinePlayers() {
+        return db.getOnlinePlayers();
+    }
+    private String getProfile(String userName) {
+        return db.getUserProfile(userName);
+    }
+    private String getProfilec(String characterName) {
+        return db.getUserProfilec(characterName);
+    }
 
 }
