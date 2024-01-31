@@ -152,7 +152,7 @@ public class Database {
         } catch (SQLException e) {
             System.out.println("Error processing ResultSet: " + e.getMessage());
         }
-        System.out.println(onlinePlayers);
+//        System.out.println(onlinePlayers);
         return onlinePlayers;
     }
 
@@ -166,10 +166,10 @@ public class Database {
                 String characterName = resultSet.getString("character_name");
                 int elo = resultSet.getInt("elo");
                 int totalMatch = resultSet.getInt("total_match");
-                int winRate = resultSet.getInt("win_rate");
+                int winMatch = resultSet.getInt("win_match");
                 boolean isOnline = resultSet.getBoolean("is_online");
 
-                return userId + "," + userName + "," + characterName + "," + elo + "," + totalMatch + "," + winRate + "," + isOnline;
+                return userId + "," + userName + "," + characterName + "," + elo + "," + totalMatch + "," + winMatch + "," + isOnline;
             }
         } catch (SQLException e) {
             String s = "User not found";
@@ -178,6 +178,7 @@ public class Database {
 
         return null; // Trả về null nếu không tìm thấy thông tin người chơi
     }
+
     public String getUserProfilec(String characterName) {
         String queryString = "SELECT * FROM users WHERE character_name = '" + characterName + "'";
         ResultSet resultSet = executeQuery(queryString);
@@ -186,11 +187,10 @@ public class Database {
             if (resultSet != null && resultSet.next()) {
                 int elo = resultSet.getInt("elo");
                 int totalMatch = resultSet.getInt("total_match");
-                int winRate = resultSet.getInt("win_rate");
+                int winMatch = resultSet.getInt("win_match");
 
-                return characterName + "," + elo + "," + totalMatch + "," + winRate;
-            }
-            else {
+                return characterName + "," + elo + "," + totalMatch + "," + winMatch;
+            } else {
                 return "fail";
             }
         } catch (SQLException e) {
@@ -198,6 +198,41 @@ public class Database {
         }
     }
 
+    public int createRoom(String username) {
+        int roomId = -1;
+
+        try {
+            // Sử dụng PreparedStatement để chứa câu lệnh SQL và thực hiện nó
+            String createRoomQuery = "INSERT INTO rooms (player1_id, status) " +
+                    "VALUES ((SELECT user_id FROM users WHERE user_name = ?), 'waiting') " +
+                    "RETURNING room_id";
+
+            // Tạo PreparedStatement với khả năng trả về các giá trị được chọn
+            PreparedStatement preparedStatement = connection.prepareStatement(createRoomQuery);
+            preparedStatement.setString(1, username);
+
+            // Thực hiện câu lệnh SQL và nhận kết quả
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            // Kiểm tra xem có dòng kết quả nào được trả về hay không
+            if (resultSet.next()) {
+                // Lấy giá trị room_id từ ResultSet
+                roomId = resultSet.getInt("room_id");
+//                System.out.println("Room created with ID: " + roomId);
+            } else {
+                System.out.println("Failed to create room.");
+            }
+
+            // Đóng PreparedStatement và ResultSet
+            preparedStatement.close();
+            resultSet.close();
+
+        } catch (SQLException e) {
+            System.out.println("Error creating room: " + e.getMessage());
+        }
+
+        return roomId;
+    }
 
     public static void main(String[] args) {
         Database connector = new Database();

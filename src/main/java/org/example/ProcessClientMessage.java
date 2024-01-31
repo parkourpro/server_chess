@@ -21,7 +21,7 @@ public class ProcessClientMessage {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("New client connected: " + clientSocket);
+//                System.out.println("New client connected: " + clientSocket);
 
                 // Handle client request in a separate thread
                 new Thread(() -> handleClient(clientSocket)).start();
@@ -77,6 +77,15 @@ public class ProcessClientMessage {
                     listOnlinePlayers = getOnlinePlayers();
                     out.println(listOnlinePlayers);
                     break;
+                case "createroom":
+                    String usernameCR = parts[1].trim();
+                    int roomId = createRoom(usernameCR);
+                    if (roomId != -1) {
+                        out.println("roomcreated," + roomId);
+                    } else {
+                        out.println("roomcreatefail");
+                    }
+                    break;
                 // Handle other request types similarly
                 default:
                     out.println("Invalid request");
@@ -107,6 +116,9 @@ public class ProcessClientMessage {
     }
     private String getProfilec(String characterName) {
         return db.getUserProfilec(characterName);
+    }
+    private int createRoom(String userName){
+        return db.createRoom(userName);
     }
 
 }
